@@ -33,8 +33,13 @@ public class RsvpController {
     RsvpService rsvpService;
     
     @GetMapping("/rsvps")
-    public List<Rsvp> getAllRsvp() {
-        return rsvpService.getAllRsvps();
+    public ResponseEntity<List<Rsvp>> getAllRsvp() {
+        List<Rsvp> rsvps = rsvpService.getAllRsvps();
+
+        if(rsvps.isEmpty()) {
+            throw new ResourceNotFoundException("No RSVPs found");
+        }
+        return ResponseEntity.ok().body(rsvps);
     }
 
     @GetMapping(path = "/rsvp", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -81,7 +86,7 @@ public class RsvpController {
         Rsvp rsvp = Rsvp.createRsvpFromJson(body);
         boolean updated = rsvpService.updateRsvpByEmail(rsvp);
         if(!updated) {
-            return new ResponseEntity<String>("Email not found", HttpStatus.NOT_FOUND);
+            throw new ResourceNotFoundException("Email not found");
         }
 
         return new ResponseEntity<String>("RSVP updated", HttpStatus.CREATED);

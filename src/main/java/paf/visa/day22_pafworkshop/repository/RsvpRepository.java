@@ -1,10 +1,11 @@
 package paf.visa.day22_pafworkshop.repository;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -27,7 +28,7 @@ public class RsvpRepository {
     private final String countRsvpsSql = "select count(*) from rsvp";
 
     public List<Rsvp> getAllRsvp() {
-        final List<Rsvp> result = jdbcTemplate.query(
+        /*final List<Rsvp> result = jdbcTemplate.query(
                 selectAllRsvpSql,
                 (rs, rowNum) -> {
                     Rsvp rsvp = new Rsvp();
@@ -36,14 +37,18 @@ public class RsvpRepository {
                     rsvp.setEmail(rs.getString("email"));
                     rsvp.setPhone(rs.getInt("phone"));
                     rsvp.setConfirmation(rs.getDate("confirmation_date"));
-                    rsvp.setComments(rs.getString("comments"));
-                    return rsvp;
-                });
-        return (Collections.unmodifiableList(result));
+                    rsvp.setComments(rs.getString("comments")); 
+
+                    
+                });*/
+        // return (Collections.unmodifiableList(result));
+        List<Rsvp> rsvps = new ArrayList<>();
+        rsvps = jdbcTemplate.query(selectAllRsvpSql, BeanPropertyRowMapper.newInstance(Rsvp.class));
+        return rsvps;
     }
 
     public Optional<List<Rsvp>> getRsvpByName(String name) {
-        final List<Rsvp> result = jdbcTemplate.query(
+        /* final List<Rsvp> result = jdbcTemplate.query(
                 selectRsvpByNameSql,
                 (rs, rowNum) -> {
                     Rsvp rsvp = new Rsvp();
@@ -56,7 +61,8 @@ public class RsvpRepository {
                     return rsvp;
                 },
                 name);
-        return Optional.ofNullable(Collections.unmodifiableList(result));
+        return Optional.ofNullable(Collections.unmodifiableList(result)); */
+        return Optional.ofNullable(jdbcTemplate.queryForList(selectRsvpByNameSql, Rsvp.class, name));
     }
 
     public boolean upsertRsvp(final Rsvp rsvp) {
@@ -80,6 +86,7 @@ public class RsvpRepository {
     }
 
     public int countRsvps() {
-        return jdbcTemplate.queryForRowSet(countRsvpsSql).getInt(1);
+        int count = jdbcTemplate.queryForObject(countRsvpsSql, Integer.class);
+        return count;
     }
 }
